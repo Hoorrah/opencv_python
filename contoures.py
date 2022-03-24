@@ -14,9 +14,9 @@ contours, hierarchy = cv.findContours(threshimg, cv.RETR_TREE, cv.CHAIN_APPROX_N
 print("number of countours= " + str(len(contours)))
 
 
-cv.drawContours(img, contours, 120, (0, 255, 0), 3)#orginal image= img,contours = contours, contours index = -1 draw all contours which found inside the image, color= (0, 255, 0), thickness = 3
+cv.drawContours(img, contours, -1, (0, 255, 0), 3)#orginal image= img,contours = contours, contours index = -1 draw all contours which found inside the image, color= (0, 255, 0), thickness = 3
 
 cv.imshow('image', img)
 cv.imshow('image gray', imgray)
 cv.waitKey()
-cv.destryAllWindows()
+cv.destroyAllWindows()

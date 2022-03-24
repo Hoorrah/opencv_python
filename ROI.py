@@ -19,7 +19,7 @@ img2 = cv2.resize(img2, (512,512))
 
 
 #dst = cv2.add(img2, img); #add 2 image together
-dst = cv2.addWeighted(img, .1, img2, .2, 0)  #src1*alpha + src2*beta + gamma
+dst = cv2.addWeighted(img, .5, img2, .5, 0)  #src1*alpha + src2*beta + gamma
 
 
 cv2.imshow('image', dst)
