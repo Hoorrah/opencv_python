@@ -10,7 +10,7 @@ imgray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
 thresholdvalue, threshimg = cv.threshold(imgray, 127, 255, 0 ) # source =img, threshold value=127, max-value-threshold = 255,thresholdtype =0
 #return value of findcontoures: contoures (is pythonlist of all the contours in the image) hierarchy(parentchild relation in contoures:next,previous,fisrt,parrent)
-contours, hierarchy = cv.findContours(threshimg, cv.RETR_TREE, cv.CHAIN_APPROX_NONE )#src= threshimg, contour mode= cv.RETR_TREE, method which we want apply(contpur approximation method)=cv.CHAIN_APPROX_NONE
+contours, hierarchy = cv.findContours(threshimg, cv.RETR_TREE, cv.CHAIN_APPROX_NONE )#src= threshimg, contour moode= cv.RETR_TREE, method which we want apply(contour approximation method)=cv.CHAIN_APPROX_NONE
 print("number of countours= " + str(len(contours)))
 
 

@@ -4,7 +4,9 @@ import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plt
 
-img = cv.imread('messi5.jpg',0)
+path = r'C:\Users\Windows10\Desktop\Internship\Image\Book-image\5515_cover.jpg'
+
+img = cv.imread(path,0)
 
 #laplacian gradient
 lap = cv.Laplacian( img, cv.CV_64F , ksize = 3)#src = imh , datatype= cv.CV_64F (64bit float and it supports negative numbers which we are dealing with when we us laplacian method),kernel size=3
@@ -21,11 +23,12 @@ sobelY_img = np.uint8(np.absolute(sobelY))
 #combine sobelx and sobely
 sobelcombined = cv.bitwise_or(sobelX_img, sobelY_img)
 
+sharp_img = cv.bgsegm.createBackgroundSubtractorMOG().apply(img)
 
-titles= [ 'Orginale image','laplacian','sovelX', 'sovelY', 'sobelcombined']
-images = [img , lap_img, sobelX_img, sobelY_img, sobelcombined]
+titles= [ 'Orginale image','laplacian','sovelX', 'sovelY', 'sobelcombined','sharp']
+images = [img , lap_img, sobelX_img, sobelY_img, sobelcombined, sharp_img]
 
-for i in range(5):
+for i in range(6):
     plt.subplot(2,3, i+1), plt.imshow(images[i], 'gray')#number of rows = 2, number of columns=3, index of images= i+1 ----- gray means gray scale images
     plt.title(titles[i])
     plt.xticks([]), plt.yticks([])
