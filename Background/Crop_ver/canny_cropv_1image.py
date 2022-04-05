@@ -6,6 +6,18 @@ import glob
 from matplotlib import pyplot as plt
 from patchify import patchify
 
+
+def auto_canny(image, sigma=0.33):
+	# compute the median of the single channel pixel intensities
+	v = np.median(image)
+	# apply automatic Canny edge detection using the computed median
+	lower = int(max(0, (1.0 - sigma) * v))
+	upper = int(min(255, (1.0 + sigma) * v))
+	edged = cv2.Canny(image, lower, upper)
+	# return the edged image
+	return edged
+
+
 #calculating the Mean square error for finding the difference between colours
 def mse(imageA, imageB):
 	err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
@@ -14,43 +26,42 @@ def mse(imageA, imageB):
 
 #define variables
 loc_right_left = []#location of patches that we can find the difference when we go through the image from right buttun
-patch_size = 50
-
+#define variables
+patch_size = 25
+loc_up_down = []
 #reading image
-img = cv2.imread("18_cover.jpg")
-
+img = cv2.imread("1_cover.jpg")
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+# threshold, and automatically determined threshold
+auto = auto_canny(blurred)
 #patchify the image
-patches_img = patchify(img, (patch_size, patch_size ,3), step=patch_size)
+patches_img = patchify(auto, (patch_size, patch_size), step=patch_size)
 
 #finding the color of fisrt left top patch in the image
-prev_patch_img = patches_img[patches_img.shape[0]-1, patches_img.shape[1]-1, 0, :, :, :]
+prev_patch_img = patches_img[patches_img.shape[0]-1, patches_img.shape[1]-1, :, :]
 prev_average_color_row = np.average(prev_patch_img, axis=0)
 prev_average_color = np.average(prev_average_color_row, axis=0)
-prev_d_img = np.ones((312,312,3), dtype=np.uint8)
+prev_d_img = np.ones((312,312), dtype=np.uint8)
 prev_d_img[:,:] = prev_average_color
-(prev_B, prev_G, prev_R)= cv2.split(prev_d_img)
 
 #go through all patches and find where we can see the difference between them
 for i in range(patches_img.shape[1]-1,0,-1):
 	for j in range(patches_img.shape[0]-1,0,-1):
-		single_patch_img = patches_img[j, i, 0, :, :, :]
+		single_patch_img = patches_img[j, i, :, :]
 		average_color_row = np.average(single_patch_img, axis=0)
 		average_color = np.average(average_color_row, axis=0)
-		d_img = np.ones((312,312,3), dtype=np.uint8)
+		d_img = np.ones((312,312), dtype=np.uint8)
 		d_img[:,:] = average_color
-		(B, G, R)= cv2.split(d_img)
-
-		if not ( mse(prev_B , B) <= 300 or mse(prev_G , G) <= 300 or mse(prev_R , R) <= 300 ):
+		#print(mse(d_img , prev_d_img))
+		if not ( mse(d_img , prev_d_img) <= 3100):
 			loc_right_left.append((i,j))
 			#cv2.imwrite('colorimage_' + '_'+ str(i)+str(j)+'.jpg', d_img)
-		prev_B = B
-		prev_G = G
-		prev_R = R
+		prev_d_img = d_img
 
 #crop the image vertically
 row , col = loc_right_left[0]
 cut_img = img[  :  , :(img.shape[1]-(col*patch_size))]
-
 
 cv2.imshow("cut image", cut_img)
 cv2.waitKey(0)
