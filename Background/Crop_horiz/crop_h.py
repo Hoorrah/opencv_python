@@ -48,7 +48,7 @@ for f in os.listdir(input_path):
 			d_img[:,:] = average_color
 			(B, G, R)= cv2.split(d_img)
 
-			if not ( mse(prev_B , B) <= 350 or mse(prev_G , G) <= 350 or mse(prev_R , R) <= 350 ):
+			if not ( mse(prev_B , B) <= 400 or mse(prev_G , G) <= 400 or mse(prev_R , R) <= 400 ):
 				loc_up_down.append((i,j))
 				#cv2.imwrite('colorimage_' + '_'+ str(i)+str(j)+'.jpg', d_img)
 			prev_B = B

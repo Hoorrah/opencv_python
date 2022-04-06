@@ -17,7 +17,7 @@ loc_up_down = []#location of patches that we can find the difference when we go 
 patch_size = 25
 
 #reading image
-img = cv2.imread("18_cover.jpg")
+img = cv2.imread("30_cover.jpg")
 
 #patchify the image
 patches_img = patchify(img, (patch_size, patch_size ,3), step=patch_size)
@@ -40,7 +40,7 @@ for i in range(patches_img.shape[0]):
 		d_img[:,:] = average_color
 		(B, G, R)= cv2.split(d_img)
 
-		if not ( mse(prev_B , B) <= 300 or mse(prev_G , G) <= 300 or mse(prev_R , R) <= 300 ):
+		if not ( mse(prev_B , B) <= 1000 or mse(prev_G , G) <= 1000 or mse(prev_R , R) <= 1000 ):
 			loc_up_down.append((i,j))
 			#cv2.imwrite('colorimage_' + '_'+ str(i)+str(j)+'.jpg', d_img)
 		prev_B = B

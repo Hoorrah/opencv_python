@@ -29,7 +29,7 @@ loc_up_down = []#location of patches that we can find the difference when we go 
 patch_size = 23
 num_image = 0
 
-input_path = r'C:\Users\Windows10\Desktop\Internship\Image\Book-image-2'
+input_path = r'C:\Users\Windows10\Desktop\Internship\Image\Book-image-line'
 valid_images = [".jpg",".gif",".png",".tga"]
 for f in os.listdir(input_path):
 	ext = os.path.splitext(f)[1]
