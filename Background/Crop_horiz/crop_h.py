@@ -14,7 +14,7 @@ def mse(imageA, imageB):
 
 #define variables
 loc_up_down = []#location of patches that we can find the difference when we go through the image from up to down
-patch_size = 20
+patch_size = 15
 num_image = 0
 
 input_path = r'C:\Users\Windows10\Desktop\Internship\Image\Book-image-2'

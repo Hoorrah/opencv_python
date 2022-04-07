@@ -14,7 +14,7 @@ def mse(imageA, imageB):
 
 #define variables
 loc_up_down = []#location of patches that we can find the difference when we go through the image from right buttom
-patch_size = 15
+patch_size = 30
 num_image = 0
 
 input_path = r'C:\Users\Windows10\Desktop\Internship\Image\Book-image-2'
@@ -48,8 +48,8 @@ for f in os.listdir(input_path):
 			d_img[:,:] = average_color
 			(B, G, R)= cv2.split(d_img)
 
-			if not ( mse(prev_B , B) <= 500 or mse(prev_G , G) <= 500 or mse(prev_R , R) <= 500 ):
-				loc_up_down.append((i,j))
+			if not ( mse(prev_B , B) <= 350 or mse(prev_G , G) <= 350 or mse(prev_R , R) <= 350 ):
+				loc_up_down.append((j,i))
 				#cv2.imwrite('colorimage_' + '_'+ str(i)+str(j)+'.jpg', d_img)
 			prev_B = B
 			prev_G = G
@@ -57,7 +57,7 @@ for f in os.listdir(input_path):
 
 	#crop the image vertically
 	row , col = loc_up_down[0]
-	cut_img = img[:  , :img.shape[1]-(col*patch_size)]
+	cut_img = img[:  , :col*patch_size]
 	cv2.imwrite('cropimagev_' + '_'+ str(num_image)+'.jpg', cut_img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
