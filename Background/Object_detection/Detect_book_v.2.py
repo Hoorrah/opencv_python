@@ -35,7 +35,7 @@ def getContours(img, imgContour):
 			cv2.drawContours(imgContour, cnt, -1, (0,0,0), 5)
 
 
-def crop_vertically(img, imgContour, num_image, patch_size_h, limit):
+def crop_vertically(img, imgContour, num_image, patch_size_h, limit): #1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mse
 	loc_right_left =[]
 	#define variables
 	loc_right_left.clear()
