@@ -117,13 +117,13 @@ def crop_horizontally(img, imgContour, num_image, patch_size_h, limit):
 
 	#go through all patches and find where we can see the difference between them
 	for i in range(patches_img.shape[0]):
-        #finding the color of fisrt left top patch in the image
-        prev_patch_img = patches_img[i, 0, 0, :, :, :]
-        prev_average_color_row = np.average(prev_patch_img, axis=0)
-        prev_average_color = np.average(prev_average_color_row, axis=0)
-        prev_d_img = np.ones((312,312,3), dtype=np.uint8)
-        prev_d_img[:,:] = prev_average_color
-        (prev_B, prev_G, prev_R)= cv2.split(prev_d_img)
+		#finding the color of fisrt left top patch in the image
+		prev_patch_img = patches_img[i, 0, 0, :, :, :]
+		prev_average_color_row = np.average(prev_patch_img, axis=0)
+		prev_average_color = np.average(prev_average_color_row, axis=0)
+		prev_d_img = np.ones((312,312,3), dtype=np.uint8)
+		prev_d_img[:,:] = prev_average_color
+		(prev_B, prev_G, prev_R)= cv2.split(prev_d_img)
 
 		for j in range(patches_img.shape[1]):
 			single_patch_img = patches_img[i, j, 0, :, :, :]
@@ -177,7 +177,7 @@ def if_backgrnd_hor(img):
 #define variables
 num_image = 0
 
-input_path = r'C:\Users\Windows10\Desktop\Internship\Image\Book-test'
+input_path = r'C:\Users\Windows10\Desktop\Internship\Image\Book-image-2'
 valid_images = [".jpg",".gif",".png",".tga"]
 for f in os.listdir(input_path):
 	ext = os.path.splitext(f)[1]
@@ -210,7 +210,7 @@ for f in os.listdir(input_path):
 		imgDil = cv2.dilate(imgCanny, kernel, iterations =1)
 
 		getContours(imgDil, imgContour)
-		crop_horizontally(img_v, imgContour, num_image, 10, 600)
+		crop_horizontally(img_v, imgContour, num_image, 10, 650)
 	else:
 		crop_horizontally(img_v, img_v, num_image, 20, 350)
 

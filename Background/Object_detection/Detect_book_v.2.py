@@ -8,6 +8,7 @@ import os
 import glob
 from matplotlib import pyplot as plt
 from patchify import patchify
+import argparse
 
 
 #calculating the Mean square error for finding the difference between colours of patches
@@ -15,7 +16,7 @@ def mse(imageA, imageB):
 	err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
 	err /=float(imageA.shape[0] * imageA.shape[1])
 	return err
-
+#____________________________________________________________________________________________________
 
 
 def auto_canny(image, sigma=0.05): #Sigma can use to vary the percentage thresholds determined based on simple statistics
@@ -27,8 +28,7 @@ def auto_canny(image, sigma=0.05): #Sigma can use to vary the percentage thresho
 	upper = int(min(255, (1.0 + sigma) * v)) #define upper threshold
 	edged = cv2.Canny(image, lower, upper) #calculate Canndy edge detection
 	return edged# return edge detected image
-
-
+#_____________________________________________________________________________________________________
 
 #finding contours of image and drwa them on the image for more performance
 def getContours(img):
@@ -46,7 +46,7 @@ def getContours(img):
 		#areaMin =cv2.getTrackbarPos("Area", "Parameters")
 		if area > 1000: #if the contour area is small skip it and just draw contours that their area is more than 1000
 			return cv2.drawContours(imgContour, cnt, -1, (0,0,0), 5) #1. source image, 2. the contours which should be passed as a Python list, 3. index of contours To draw all contours, pass -1. 4.color,5. thickness
-
+#_____________________________________________________________________________________________________
 
 
 #function for cheking if there is background in two side of image
@@ -93,6 +93,7 @@ def if_background( src_img , type):#get image as input_path
 	if ( mse(fisrt_B , sec_B) <= limit and mse(first_G , sec_G) <= limit and mse(first_R , sec_R) <= limit):
 		check_result = True #there is background
 	return check_result
+#_____________________________________________________________________________________________________
 
 
 #function for crpping image background vertically from right of image to left part
@@ -125,6 +126,8 @@ def crop_vertically_RtoL(img, imgContour, num_image, patch_size_v, limit): #1.or
 			prev_R = R
 	row , col = loc_right_left[0] #location of fisrt patches that they are different
 	return img[:  , :col*patch_size_v]  #return cropped image
+#_____________________________________________________________________________________________________
+
 
 #function for crpping image background vertically from left of image to right part
 def crop_vertically_LtoR(img, imgContour, num_image, patch_size_v, limit): #1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
@@ -156,6 +159,7 @@ def crop_vertically_LtoR(img, imgContour, num_image, patch_size_v, limit): #1.or
 			prev_R = R
 	row , col = loc_left_right[0] #location of fisrt patches that they are different
 	return img[:  , col*patch_size_v:]  #return cropped image
+#_____________________________________________________________________________________________________
 
 
 
@@ -192,13 +196,18 @@ def crop_horizontally(img, imgContour, num_image, patch_size_h, limit):#1.orgina
 	return img[ (row*patch_size_h) :  , :] #crop the image horizontally
 
 
+
 #########################################################################################################
 #define variables
 num_image = 0 # number of images
 #reading images from folder
 #getting path from commandline
-input_path = sys.argv[1]
-
+#input_path = sys.argv[1]
+ap = argparse.ArgumentParser()
+ap.add_argument("-i", "--image", required=True,
+    help="path to folder of input images")
+args = vars(ap.parse_args())
+input_path = args["image"]
 # Check if path exits
 if os.path.exists(input_path):
     print("Folder exists")
@@ -222,19 +231,19 @@ for f in os.listdir(input_path):# go through folder path and read images one by 
 	#checking if the image has background in the right part of it
 	if (if_background(img , type = 1)): #1.source image 2. type of cropping is vertically from right of image
 		imgContour = getContours(img) #finding contours of image and draw them on the imgContour
-		img_v = crop_vertically_RtoL(img, imgContour, num_image, patch_size_v=10, limit=300 )#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles , crop from right to left
+		img_v = crop_vertically_RtoL(img, imgContour, num_image, patch_size_v=10, limit=100 )#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles , crop from right to left
 	else: #there is no background
-		img_v = crop_vertically_RtoL(img, img, num_image, patch_size_v=20, limit=350)#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles crop from right to left
+		img_v = crop_vertically_RtoL(img, img, num_image, patch_size_v=10, limit=100)#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles crop from right to left
 	if (if_background(img , type = 2)): #1.source image 2. type of cropping is vertically from right of image
 		imgContour = getContours(img_v) #finding contours of image and draw them on the imgContour
-		img_v = crop_vertically_LtoR(img_v, imgContour, num_image, patch_size_v=10, limit=350 )#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles  crop from left to right
+		img_v = crop_vertically_LtoR(img_v, imgContour, num_image, patch_size_v=10, limit=100 )#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles  crop from left to right
 	#checking if the image has background in the top part of it
 	if (if_background(img_v , type = 0)): #1.source image which is croppedvertically befor 2. type of cropping is vertically from right of image
 		imgContour = getContours(img_v) #finding contours of image and draw them on the imgContour
-		imgCrop = crop_horizontally(img_v, imgContour, num_image, patch_size_h=10, limit=600)#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
+		imgCrop = crop_horizontally(img_v, imgContour, num_image, patch_size_h=10, limit=100)#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
 		cv2.imwrite('image_'+ str(num_image)+'.jpg', imgCrop) # write the result in with jpg fromat
 	else: #there is no background
-		imgCrop = crop_horizontally(img_v, img_v, num_image, patch_size_h=20, limit=350)#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
+		imgCrop = crop_horizontally(img_v, img_v, num_image, patch_size_h=20, limit=100)#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
 		cv2.imwrite('image_'+ str(num_image)+'.jpg', imgCrop) # write the result in with jpg fromat
 
 cv2.waitKey(0)
