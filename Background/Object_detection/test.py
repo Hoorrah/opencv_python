@@ -8,6 +8,8 @@ import os
 import glob
 from matplotlib import pyplot as plt
 from patchify import patchify
+import argparse
+from datetime import datetime
 
 
 #calculating the Mean square error for finding the difference between colours of patches
@@ -15,7 +17,7 @@ def mse(imageA, imageB):
 	err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
 	err /=float(imageA.shape[0] * imageA.shape[1])
 	return err
-
+#____________________________________________________________________________________________________
 
 
 def auto_canny(image, sigma=0.05): #Sigma can use to vary the percentage thresholds determined based on simple statistics
@@ -27,8 +29,7 @@ def auto_canny(image, sigma=0.05): #Sigma can use to vary the percentage thresho
 	upper = int(min(255, (1.0 + sigma) * v)) #define upper threshold
 	edged = cv2.Canny(image, lower, upper) #calculate Canndy edge detection
 	return edged# return edge detected image
-
-
+#_____________________________________________________________________________________________________
 
 #finding contours of image and drwa them on the image for more performance
 def getContours(img):
@@ -46,7 +47,7 @@ def getContours(img):
 		#areaMin =cv2.getTrackbarPos("Area", "Parameters")
 		if area > 1000: #if the contour area is small skip it and just draw contours that their area is more than 1000
 			return cv2.drawContours(imgContour, cnt, -1, (0,0,0), 5) #1. source image, 2. the contours which should be passed as a Python list, 3. index of contours To draw all contours, pass -1. 4.color,5. thickness
-
+#_____________________________________________________________________________________________________
 
 
 #function for cheking if there is background in two side of image
@@ -93,6 +94,7 @@ def if_background( src_img , type):#get image as input_path
 	if ( mse(fisrt_B , sec_B) <= limit and mse(first_G , sec_G) <= limit and mse(first_R , sec_R) <= limit):
 		check_result = True #there is background
 	return check_result
+#_____________________________________________________________________________________________________
 
 
 #function for crpping image background vertically from right of image to left part
@@ -103,6 +105,7 @@ def crop_vertically_RtoL(img, imgContour, num_image, patch_size_v, limit): #1.or
 	#patchify the orginal image
 	patches_img = patchify(imgContour, (patch_size_v, patch_size_v ,3), step=patch_size_v)
 	#go through all patches and find where we can find location of patches that there is the difference between them (new area)
+	break_out_flag = False
 	for j in range(patches_img.shape[1]-1,0,-1): #column by column from right of image to left (j)
 		prev_patch_img = patches_img[patches_img.shape[0]-1, j, 0, :, :, :] #last row and jth column
 		prev_average_color_row = np.average(prev_patch_img, axis=0) # finding its color
@@ -120,11 +123,16 @@ def crop_vertically_RtoL(img, imgContour, num_image, patch_size_v, limit): #1.or
 			#checking the MSE of color of each patch with its previous of it
 			if not ( mse(prev_B , B) <= limit or mse(prev_G , G) <= limit or mse(prev_R , R) <= limit ):
 				loc_right_left.append((i,j)) # add the location of the patch to the list
+				break_out_flag = True
 			prev_B = B
 			prev_G = G
 			prev_R = R
+		if (break_out_flag):
+			break
 	row , col = loc_right_left[0] #location of fisrt patches that they are different
 	return img[:  , :col*patch_size_v]  #return cropped image
+#_____________________________________________________________________________________________________
+
 
 #function for crpping image background vertically from left of image to right part
 def crop_vertically_LtoR(img, imgContour, num_image, patch_size_v, limit): #1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
@@ -134,6 +142,7 @@ def crop_vertically_LtoR(img, imgContour, num_image, patch_size_v, limit): #1.or
 	#patchify the orginal image
 	patches_img = patchify(imgContour, (patch_size_v, patch_size_v ,3), step=patch_size_v)
 	#go through all patches and find where we can find location of patches that there is the difference between them (new area)
+	break_out_flag = False
 	for j in range(patches_img.shape[1]-1): #column by column from right of image to left (j)
 		prev_patch_img = patches_img[patches_img.shape[0]-1, j, 0, :, :, :] #last row and jth column
 		prev_average_color_row = np.average(prev_patch_img, axis=0) # finding its color
@@ -151,11 +160,16 @@ def crop_vertically_LtoR(img, imgContour, num_image, patch_size_v, limit): #1.or
 			#checking the MSE of color of each patch with its previous of it
 			if not ( mse(prev_B , B) <= limit or mse(prev_G , G) <= limit or mse(prev_R , R) <= limit ):
 				loc_left_right.append((i,j)) # add the location of the patch to the list
+				break_out_flag = True
+				break
 			prev_B = B
 			prev_G = G
 			prev_R = R
+		if (break_out_flag):
+			break
 	row , col = loc_left_right[0] #location of fisrt patches that they are different
 	return img[:  , col*patch_size_v:]  #return cropped image
+#_____________________________________________________________________________________________________
 
 
 
@@ -174,6 +188,7 @@ def crop_horizontally(img, imgContour, num_image, patch_size_h, limit):#1.orgina
 	prev_d_img[:,:] = prev_average_color #copy the color to matrix
 	(prev_B, prev_G, prev_R)= cv2.split(prev_d_img) # split the window to its color channels
 	#go through all patches and find where we can see the difference between them
+	break_out_flag = False
 	for i in range(patches_img.shape[0]):
 		for j in range(patches_img.shape[1]):
 			single_patch_img = patches_img[i, j, 0, :, :, :]
@@ -185,23 +200,33 @@ def crop_horizontally(img, imgContour, num_image, patch_size_h, limit):#1.orgina
 			#checking the MSE of color of each patch with its previous of it
 			if not ( mse(prev_B , B) <= limit or mse(prev_G , G) <= limit or mse(prev_R , R) <= limit ):
 				loc_up_down.append((i,j))  # add the location of the patch to the list
+				break_out_flag = True
+				break
 			prev_B = B
 			prev_G = G
 			prev_R = R
+		if (break_out_flag):
+			break
 	row , col = loc_up_down[0] #location of fisrt patches that they are different
 	return img[ (row*patch_size_h) :  , :] #crop the image horizontally
 
 
+
 #########################################################################################################
+start_time = datetime.now()
 #define variables
 num_image = 0 # number of images
 #reading images from folder
 #getting path from commandline
-input_path = sys.argv[1]
-
+#input_path = sys.argv[1]
+ap = argparse.ArgumentParser()
+ap.add_argument("-i", "--image", required=True,
+	help="path to folder of input images")
+args = vars(ap.parse_args())
+input_path = args["image"]
 # Check if path exits
 if os.path.exists(input_path):
-    print("Folder exists")
+	print("Folder exists")
 else :
 	print("Folder does not exist")
 
@@ -219,15 +244,26 @@ for f in os.listdir(input_path):# go through folder path and read images one by 
 		continue
 	#increasing number of image
 	num_image = num_image+1
-#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles  crop from left to right
-	#checking if the image has background in the top part of it
-	if (if_background(img , type = 0)): #1.source image which is croppedvertically befor 2. type of cropping is vertically from right of image
+	#checking if the image has background in the right part of it
+	if (if_background(img , type = 1)): #1.source image 2. type of cropping is vertically from right of image
 		imgContour = getContours(img) #finding contours of image and draw them on the imgContour
-		imgCrop = crop_horizontally(img, imgContour, num_image, patch_size_h=10, limit=100)#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
+		img_v = crop_vertically_RtoL(img, imgContour, num_image, patch_size_v=10, limit=100 )#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles , crop from right to left
+	else: #there is no background
+		img_v = crop_vertically_RtoL(img, img, num_image, patch_size_v=10, limit=100)#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles crop from right to left
+	if (if_background(img , type = 2)): #1.source image 2. type of cropping is vertically from right of image
+		imgContour = getContours(img_v) #finding contours of image and draw them on the imgContour
+		img_v = crop_vertically_LtoR(img_v, imgContour, num_image, patch_size_v=10, limit=100 )#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles  crop from left to right
+	#checking if the image has background in the top part of it
+	if (if_background(img_v , type = 0)): #1.source image which is croppedvertically befor 2. type of cropping is vertically from right of image
+		imgContour = getContours(img_v) #finding contours of image and draw them on the imgContour
+		imgCrop = crop_horizontally(img_v, imgContour, num_image, patch_size_h=10, limit=100)#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
 		cv2.imwrite('image_'+ str(num_image)+'.jpg', imgCrop) # write the result in with jpg fromat
 	else: #there is no background
-		imgCrop = crop_horizontally(img, img, num_image, patch_size_h=10, limit=100)#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
+		imgCrop = crop_horizontally(img_v, img_v, num_image, patch_size_h=20, limit=100)#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
 		cv2.imwrite('image_'+ str(num_image)+'.jpg', imgCrop) # write the result in with jpg fromat
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+
+end_time = datetime.now()
+print('Duration: {}'.format((end_time - start_time)/5))

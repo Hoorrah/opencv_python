@@ -9,10 +9,11 @@ from os.path import join, basename
 import argparse
 import pandas as pd
 from PIL.ImageOps import crop
+from datetime import datetime
 
 
 
-dir_path = r'C:/Users/Windows10/Desktop/Internship/Image/Compare/3_Data'
+dir_path = r'C:/Users/Windows10/Desktop/Internship/Image/onebook'
 save_dir_path=r'C:/Users/Windows10/Desktop/Internship/Image'
 
 
@@ -29,7 +30,7 @@ line_diff = 3
 
 #_______________________________________________________________________________
 
-    # a kép tetején lévő 20 pixel magas sáv mozgó ablakokkal
+    #a 20 pixel high bar at the top of the image with moving windows
 def moving_window_vert():
     av_vert = []
     for i in range(0, image.shape[0],WIDTH):
@@ -41,7 +42,7 @@ def moving_window_vert():
 
 #_______________________________________________________________________________
 
-    # a kép jobboldalán lévő 20 pixel széles sáv mozgó ablakokkal
+    #a 20-pixel-wide band on the right side of the image with moving windows
 def moving_window_hor():
     av_hor = []
     for i in range(0, image.shape[1],WIDTH):
@@ -53,7 +54,7 @@ def moving_window_hor():
 
 #_______________________________________________________________________________
 
-    # a jobboldali sáv ábrázolásához
+    #to display the right bar
 def create_RGB_for_vert_edge():
     length = len(av_vert)
     img_vert = []
@@ -71,7 +72,7 @@ def create_RGB_for_vert_edge():
 
 #_______________________________________________________________________________
 
-    # a felső sáv ábrázolásához
+    # to display the top bar
 def create_RGB_for_hor_edge():
     length=len(av_hor)
     img_hor = []
@@ -88,7 +89,7 @@ def create_RGB_for_hor_edge():
 
 #_______________________________________________________________________________
 
-    # a sávok ábrázolása
+    # representation of the bars
 def create_plot_for_edges():
     img_vert = create_RGB_for_vert_edge()
     img_hor = create_RGB_for_hor_edge()
@@ -105,7 +106,7 @@ def create_plot_for_edges():
 
 #_______________________________________________________________________________
 
-   # az első körös döntéshez szükséges tömbök létrehozása
+   # creating the arrays needed for the first round decision
 def create_right_up_both_arrays():
     right, up, both = [], [], []
 
@@ -126,7 +127,7 @@ def create_right_up_both_arrays():
 
 #_______________________________________________________________________________
 
-     # az első körös döntés
+     # the first round decision
 def create_right_up_both_guess():
     right, up, both = create_right_up_both_arrays()
     guess = ''
@@ -156,7 +157,7 @@ def show_image():
 
 
 
-    # a sávokból készített függvény
+    #a function made of bands
 def create_function(stripe):
     func = np.zeros((len(stripe), ), float)
     for i in range(len(stripe)-1,1, -1):
@@ -166,7 +167,7 @@ def create_function(stripe):
 #_______________________________________________________________________________
 
 
-    # az első (fő) lehetséges  függőleges vágóegyenes megkeresése
+    # finding the first (main) possible vertical cutting line
 def find_first_vert_line(stripe):
     fun = create_function(stripe)
     l = len(stripe)
@@ -185,7 +186,7 @@ def find_first_vert_line(stripe):
 
 #_______________________________________________________________________________
 
-    # a második (másodlagos) lehetséges függőleges vágóegyenes megkeresése
+    # finding the second (secondary) possible vertical cutting line
 def find_second_vert_line(stripe):
     func = create_function(stripe)
     coord_X, coord_Y = find_first_vert_line(stripe)
@@ -202,7 +203,7 @@ def find_second_vert_line(stripe):
 
 #_______________________________________________________________________________
 
-    # az első (fő) vízszintes vágóegyenes megkeresése
+    # finding the first (main) horizontal cutting line
 def find_first_hor_line(stripe):
     fun = create_function(stripe)
     l = len(stripe)
@@ -222,7 +223,7 @@ def find_first_hor_line(stripe):
 
 #_______________________________________________________________________________
 
-    # a második (másodlagos) lehetséges vágóegyenes megkeresése
+    # finding a second (secondary) possible cutting line
 def find_second_hor_line(stripe):
     #print(' ')
     #print('find_second_hor_line')
@@ -245,8 +246,8 @@ def find_second_hor_line(stripe):
 
 #_______________________________________________________________________________
 
-    # a függőleges vágáshoz szükséges vízszintes sáv a kép alján és a hozzá
-    # tartozó lehetséges vágási koordináták
+    # the horizontal bar required for vertical cropping at the bottom of the image and to it
+    # possible cutting coordinates
 def crop_image_vert_bottom():
     crop_img_vert_bottom = gray[image.shape[0]-WIDTH:image.shape[0], 0:].copy()
     arr_vert_bottom = np.asarray(crop_img_vert_bottom)
@@ -1040,7 +1041,7 @@ def final_decision(h,h_next, w, w_next):
 
 
 
-
+start_time = datetime.now()
 
 imgs = [join(dir_path,f) for f in listdir(dir_path)]
 
@@ -1141,3 +1142,5 @@ for i in range(len(imgs)):
 
 
     cv2.imwrite(join(save_dir_path, filen), cropped_img)
+end_time = datetime.now()
+print('Duration: {}'.format((end_time - start_time)/5))
