@@ -96,7 +96,7 @@ def if_background( src_img , type):#get image as input_path
 	return check_result
 #_____________________________________________________________________________________________________
 
-
+# we find the "limit value" for functions by expriment
 #function for crpping image background vertically from right of image to left part
 def crop_vertically_RtoL(img, imgContour, num_image, patch_size_v, limit): #1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
 	#define variables
@@ -128,12 +128,12 @@ def crop_vertically_RtoL(img, imgContour, num_image, patch_size_v, limit): #1.or
 			prev_B = B
 			prev_G = G
 			prev_R = R
-		if (break_out_flag):
+		if (break_out_flag): #finding the fisrt place that the colors are diffrerent so break it and pass the location
 			break
 	return img[:  , :column*patch_size_v]  #return cropped image
 #_____________________________________________________________________________________________________
 
-
+# we find the "limit value" for functions by expriment
 #function for crpping image background vertically from left of image to right part
 def crop_vertically_LtoR(img, imgContour, num_image, patch_size_v, limit): #1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
 	#define variables
@@ -166,13 +166,13 @@ def crop_vertically_LtoR(img, imgContour, num_image, patch_size_v, limit): #1.or
 			prev_B = B
 			prev_G = G
 			prev_R = R
-		if (break_out_flag):
+		if (break_out_flag):#finding the fisrt place that the colors are diffrerent so break it and pass the location
 			break
 	return img[:  , column*patch_size_v:]  #return cropped image
 #_____________________________________________________________________________________________________
 
 
-
+# we find the "limit value" for functions by expriment 
 #function for crpping image background horizontally
 def crop_horizontally(img, imgContour, num_image, patch_size_h, limit):#1.orginal image , 2.image with its contours 3.number of image 4.patch szie 5.limit for mean squar error of color channeles
 	#define variables
@@ -206,7 +206,7 @@ def crop_horizontally(img, imgContour, num_image, patch_size_h, limit):#1.orgina
 			prev_B = B
 			prev_G = G
 			prev_R = R
-		if (break_out_flag):
+		if (break_out_flag):#finding the fisrt place that the colors are diffrerent so break it and pass the location
 			break
 	return img[ (row*patch_size_h) :  , :] #crop the image horizontally
 
@@ -266,4 +266,4 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 
 end_time = datetime.now()
-print('Duration: {}'.format((end_time - start_time)/5))
+print('Duration: {}'.format((end_time - start_time))) #caculating time of the program
